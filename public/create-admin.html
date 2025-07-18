@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สร้างบัญชีแอดมิน</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9fafb;
+    }
+    h1 {
+      color: #1f2937;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #374151;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    button:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+    }
+    .alert {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .alert-success {
+      background-color: #d1fae5;
+      border: 1px solid #10b981;
+      color: #047857;
+    }
+    .alert-error {
+      background-color: #fee2e2;
+      border: 1px solid #ef4444;
+      color: #b91c1c;
+    }
+    .hidden {
+      display: none;
+    }
+    .loading {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .info-text {
+      color: #6b7280;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>สร้างบัญชีแอดมิน</h1>
+  
+  <div class="card">
+    <div id="successAlert" class="alert alert-success hidden">
+      สร้างบัญชีแอดมินสำเร็จแล้ว! คุณสามารถเข้าสู่ระบบได้ที่หน้า Login
+    </div>
+    
+    <div id="errorAlert" class="alert alert-error hidden"></div>
+    
+    <form id="adminForm">
+      <div class="form-group">
+        <label for="email">อีเมล</label>
+        <input type="email" id="email" required placeholder="กรอกอีเมลที่ต้องการใช้">
+        <p class="info-text">อีเมล์ต้องลงท้ายด้วย @lemonshopby.me, @admin.robux-redemption.com หรือเป็นอีเมล์ที่ได้รับอนุญาตเท่านั้น</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" required placeholder="กรอกรหัสผ่าน">
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">ยืนยันรหัสผ่าน</label>
+        <input type="password" id="confirmPassword" required placeholder="กรอกรหัสผ่านอีกครั้ง">
+      </div>
+      
+      <div class="form-group">
+        <label for="secretKey">รหัสพิเศษ (สำหรับแอดมินเท่านั้น)</label>
+        <input type="password" id="secretKey" required placeholder="กรอกรหัสพิเศษสำหรับการสร้างแอดมิน">
+      </div>
+      
+      <button type="submit" id="submitBtn">สร้างบัญชีแอดมิน</button>
+    </form>
+    
+    <div id="loading" class="loading hidden">กำลังดำเนินการ...</div>
+  </div>
+  
+  <a href="/" class="back-link">กลับไปหน้าหลัก</a>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('adminForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const loadingEl = document.getElementById('loading');
+      const successAlert = document.getElementById('successAlert');
+      const errorAlert = document.getElementById('errorAlert');
+      
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const secretKey = document.getElementById('secretKey').value;
+        
+        // Reset alerts
+        successAlert.classList.add('hidden');
+        errorAlert.classList.add('hidden');
+        
+        // Validate password match
+        if (password !== confirmPassword) {
+          errorAlert.textContent = 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน';
+          errorAlert.classList.remove('hidden');
+          return;
+        }
+        
+        // Disable form and show loading
+        submitBtn.disabled = true;
+        loadingEl.classList.remove('hidden');
+        
+        try {
+          const response = await fetch('https://yvactofmmdiauewmkqnk.supabase.co/functions/v1/app_9c8f2cf91bf942b2a7f12fc4c7ee9dc6_create_admin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password, secretKey })
+          });
+          
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.error || 'เกิดข้อผิดพลาดในการสร้างบัญชีแอดมิน');
+          }
+          
+          // Show success message
+          successAlert.classList.remove('hidden');
+          form.reset();
+          
+        } catch (error) {
+          // Show error message
+          errorAlert.textContent = error.message;
+          errorAlert.classList.remove('hidden');
+        } finally {
+          // Re-enable form and hide loading
+          submitBtn.disabled = false;
+          loadingEl.classList.add('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
